@@ -1,0 +1,10 @@
+__pycache__/*
+uploads/*
+output/*
+*.pth
+*.pt
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.sqlite
