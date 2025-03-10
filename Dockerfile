@@ -2,10 +2,10 @@ FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
 
 WORKDIR /app
 
-RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt update && \
-    apt install -y git curl libgl1-mesa-glx ffmpeg tzdata && \
-    rm -rf /var/lib/apt/lists/*
+ENV DEBIAN_FRONTEND=noninteractive
 
+RUN apt update && apt install -y git curl libgl1-mesa-glx ffmpeg && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY . /app
 
