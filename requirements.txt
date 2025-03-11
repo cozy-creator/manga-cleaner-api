@@ -6,3 +6,5 @@ diffusers @ git+https://github.com/huggingface/diffusers.git@8fcfb2a456e5c35d6d5
 transformers @ git+https://github.com/huggingface/transformers.git@dc8b6eaeeeb59dd3089b478cc09b577f2c62a297
 celery
 fastapi
+uvicorn
+SQLAlchemy
