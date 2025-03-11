@@ -6,35 +6,36 @@ WORKDIR /app
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Install essential dependencies
+# Install system dependencies
 RUN apt update && apt install -y --no-install-recommends \
     git curl libgl1-mesa-glx ffmpeg build-essential python3.11 python3.11-dev python3-pip python3.11-venv \
     && ln -sf /usr/bin/python3.11 /usr/bin/python \
     && ln -sf /usr/bin/pip3 /usr/bin/pip \
     && apt clean && rm -rf /var/lib/apt/lists/*
 
-# Create and activate a virtual environment
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+# Create and activate virtual environment
+RUN python -m venv $VIRTUAL_ENV
 
-# Ensure pip is available inside the venv
-RUN /opt/venv/bin/python -m ensurepip
+# Ensure pip is installed inside the venv
+RUN $VIRTUAL_ENV/bin/python -m ensurepip
 
 # Upgrade pip inside the venv
-RUN /opt/venv/bin/pip install --no-cache-dir --upgrade pip
+RUN $VIRTUAL_ENV/bin/pip install --no-cache-dir --upgrade pip
 
 # Install PyTorch inside the virtual environment
-RUN /opt/venv/bin/pip install --no-cache-dir torch torchvision torchaudio xformers --index-url https://download.pytorch.org/whl/cu124
+RUN $VIRTUAL_ENV/bin/pip install --no-cache-dir torch torchvision torchaudio xformers --index-url https://download.pytorch.org/whl/cu124
 
 # Copy project files
 COPY . /app
 
 # Explicitly activate venv when installing requirements
-RUN /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
+RUN $VIRTUAL_ENV/bin/pip install --no-cache-dir -r requirements.txt
 
 # Expose the application port
 EXPOSE 8000
 
 # Start FastAPI and Celery worker
-CMD ["bash", "-c", "source /opt/venv/bin/activate && uvicorn main:app --host 0.0.0.0 --port 8000 & celery -A tasks worker --loglevel=info --concurrency=1 --pool=solo"]
+CMD ["bash", "-c", "source $VIRTUAL_ENV/bin/activate && uvicorn main:app --host 0.0.0.0 --port 8000 & celery -A tasks worker --loglevel=info --concurrency=1 --pool=solo"]
