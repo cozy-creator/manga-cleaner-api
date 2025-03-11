@@ -18,25 +18,23 @@ RUN apt update && apt install -y --no-install-recommends \
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Install PyTorch for CUDA 12.4
-RUN pip install --no-cache-dir --upgrade pip
-# Install PyTorch for CUDA 12.4 if possible
-RUN if [ "$TARGETARCH" = "amd64" ]; then \
-        pip install -U --no-cache-dir torch torchvision torchaudio \
-        xformers --index-url https://download.pytorch.org/whl/cu124; \
-    else \
-        echo "xformers is unavailable on $TARGETARCH architecture"; \
-        pip3 install torch torchvision torchaudio; \
-    fi
+# Ensure pip is available inside the venv
+RUN /opt/venv/bin/python -m ensurepip
+
+# Upgrade pip inside the venv
+RUN /opt/venv/bin/pip install --no-cache-dir --upgrade pip
+
+# Install PyTorch inside the virtual environment
+RUN /opt/venv/bin/pip install --no-cache-dir torch torchvision torchaudio xformers --index-url https://download.pytorch.org/whl/cu124
 
 # Copy project files
 COPY . /app
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Explicitly activate venv when installing requirements
+RUN /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
 
 # Expose the application port
 EXPOSE 8000
 
 # Start FastAPI and Celery worker
-CMD ["bash", "-c", "uvicorn main:app --host 0.0.0.0 --port 8000 & celery -A tasks worker --loglevel=info --concurrency=1 --pool=solo"]
+CMD ["bash", "-c", "source /opt/venv/bin/activate && uvicorn main:app --host 0.0.0.0 --port 8000 & celery -A tasks worker --loglevel=info --concurrency=1 --pool=solo"]
