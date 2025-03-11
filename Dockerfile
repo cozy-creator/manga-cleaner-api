@@ -41,4 +41,4 @@ RUN $VIRTUAL_ENV/bin/pip install --no-cache-dir -r requirements.txt
 EXPOSE 8000 8888
 
 # Start FastAPI, Celery, and Jupyter Notebook
-CMD ["bash", "-c", "source $VIRTUAL_ENV/bin/activate && uvicorn main:app --host 0.0.0.0 --port 8000 & celery -A tasks worker --loglevel=info --concurrency=1 --pool=solo & jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root"]
+CMD ["bash", "-c", "source $VIRTUAL_ENV/bin/activate && uvicorn main:app --host 0.0.0.0 --port 8000 & celery -A tasks worker --loglevel=info --concurrency=1 --pool=solo"]
