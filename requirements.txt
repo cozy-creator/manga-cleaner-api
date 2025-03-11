@@ -8,3 +8,4 @@ celery
 fastapi
 uvicorn
 SQLAlchemy
+python-multipart
