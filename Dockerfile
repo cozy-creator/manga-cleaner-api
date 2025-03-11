@@ -25,17 +25,20 @@ RUN $VIRTUAL_ENV/bin/python -m ensurepip
 # Upgrade pip inside the venv
 RUN $VIRTUAL_ENV/bin/pip install --no-cache-dir --upgrade pip
 
-# Install PyTorch inside the virtual environment
+# 🔥 Install PyTorch inside the virtual environment
 RUN $VIRTUAL_ENV/bin/pip install --no-cache-dir torch torchvision torchaudio xformers --index-url https://download.pytorch.org/whl/cu124
+
+# Install Jupyter Lab
+RUN $VIRTUAL_ENV/bin/pip install --no-cache-dir jupyterlab
 
 # Copy project files
 COPY . /app
 
-# Explicitly activate venv when installing requirements
+# ✅ Install all dependencies
 RUN $VIRTUAL_ENV/bin/pip install --no-cache-dir -r requirements.txt
 
-# Expose the application port
-EXPOSE 8000
+# Expose ports for FastAPI, Celery, and Jupyter Notebook
+EXPOSE 8000 8888
 
-# Start FastAPI and Celery worker
-CMD ["bash", "-c", "source $VIRTUAL_ENV/bin/activate && uvicorn main:app --host 0.0.0.0 --port 8000 & celery -A tasks worker --loglevel=info --concurrency=1 --pool=solo"]
+# Start FastAPI, Celery, and Jupyter Notebook
+CMD ["bash", "-c", "source $VIRTUAL_ENV/bin/activate && uvicorn main:app --host 0.0.0.0 --port 8000 & celery -A tasks worker --loglevel=info --concurrency=1 --pool=solo & jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root"]
