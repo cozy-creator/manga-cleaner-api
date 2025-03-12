@@ -27,8 +27,9 @@ def get_server_url():
     """
 
     pod_id = os.getenv("RUNPOD_POD_ID")
+    internal_port = os.getenv("INTERNAL_PORT")
     if pod_id:
-        return f"https://{pod_id}-{os.getenv("INTERNAL_PORT")}.proxy.runpod.net"
+        return f"https://{pod_id}-{internal_port}.proxy.runpod.net"
     return "http://localhost:8000"
 
 
