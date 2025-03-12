@@ -9,3 +9,5 @@ fastapi
 uvicorn
 SQLAlchemy
 python-multipart
+accelerate
+python-dotenv

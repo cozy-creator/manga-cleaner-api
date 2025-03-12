@@ -1,7 +1,8 @@
 from fastapi import FastAPI, UploadFile, File, BackgroundTasks
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from celery.result import AsyncResult
-from typing import List
+from typing import List, Optional
 import shutil
 import os
 import uuid
@@ -17,7 +18,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 @app.post("/upload")
-async def upload_files(files: List[UploadFile] = File(...)):
+async def upload_files(files: List[UploadFile] = File(...), webhook_url: Optional[str] = None):
     """
     Upload multiple images and queue them for processing.
     """
@@ -35,9 +36,13 @@ async def upload_files(files: List[UploadFile] = File(...)):
         image_paths.append(file_path)
 
     # Queue the task in Celery
-    process_images_task.delay(job_id, image_paths)
+    process_images_task.delay(job_id, image_paths, webhook_url)
 
-    return JSONResponse({"job_id": job_id, "status": "processing"})
+    # Return the URL where processed images will be available
+    return {
+        "job_id": job_id,
+        "status": "processing",
+    }
 
 
 @app.get("/status/{job_id}")
