@@ -716,20 +716,24 @@ class MangaPageProcessor:
         
         return result
     
-    def process_page(self, image_path, output_folder):
+    def process_page(self, image_path, output_kra_path):
 
-        job_id = os.path.basename(output_folder)
+        # job_id = os.path.basename(output_folder)
         image_basename = os.path.splitext(os.path.basename(image_path))[0]
 
-        os.makedirs(output_folder, exist_ok=True)
+        # os.makedirs(output_folder, exist_ok=True)
 
-        output_kra_path = os.path.join(output_folder, f"{image_basename}.kra")
+        # output_kra_path = os.path.join(output_folder, f"{image_basename}.kra")
+        output_folder = os.path.dirname(output_kra_path)
         output_image_path = os.path.join(output_folder, f"{image_basename}.png")
 
         MAX_DIMENSION = 2048
 
         # Read the image
         image = cv2.imread(image_path)
+
+        if image is None:
+            raise FileNotFoundError(f"❌ Failed to load image: {image_path}")
 
         # Store original dimensions
         original_height, original_width = image.shape[:2]
@@ -856,8 +860,8 @@ class MangaPageProcessor:
             image = cv2.cvtColor(np.array(inpainted_image), cv2.COLOR_RGBA2RGB)
 
             # Clean up to free memory
-            del self.inpaint_pipe
-            self.inpaint_pipe = None
+            # del self.inpaint_pipe
+            # self.inpaint_pipe = None
             torch.cuda.empty_cache()
 
         if needs_initial_resize:
