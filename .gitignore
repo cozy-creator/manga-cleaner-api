@@ -9,3 +9,6 @@ output/*
 *.webp
 *.sqlite
 .env
+kra_files/*
+gen_images/*
+translation_result_*.json

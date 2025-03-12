@@ -1,5 +1,5 @@
-from fastapi import FastAPI, UploadFile, File, BackgroundTasks
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, UploadFile, File, BackgroundTasks, Form
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from celery.result import AsyncResult
 from typing import List, Optional
@@ -21,7 +21,7 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 app.mount("/outputs", StaticFiles(directory="output"), name="outputs")
 
 @app.post("/upload")
-async def upload_files(files: List[UploadFile] = File(...), webhook_url: Optional[str] = None):
+async def upload_files(files: List[UploadFile] = File(...), webhook_url: Optional[str] = Form(None)):
     """
     Upload multiple images and queue them for processing.
     """
@@ -79,3 +79,14 @@ async def get_results(job_id: str):
 
     images = os.listdir(output_folder)
     return JSONResponse({"job_id": job_id, "files": images})
+
+
+@app.get("/download/{job_id}/{filename}")
+async def download_file(job_id: str, filename: str):
+    """
+    Serve processed files (image or .kra) for download.
+    """
+    file_path = os.path.join(OUTPUT_FOLDER, job_id, filename)
+    if os.path.exists(file_path):
+        return FileResponse(file_path, filename=filename)
+    return {"error": "File not found"}, 404

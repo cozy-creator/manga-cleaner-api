@@ -11,3 +11,8 @@ SQLAlchemy
 python-multipart
 accelerate
 python-dotenv
+manga-ocr
+craft-text-detector
+openai
+scikit-learn
+lxml
