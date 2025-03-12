@@ -17,6 +17,9 @@ OUTPUT_FOLDER = "output"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
+# Serve the output folder as static files
+app.mount("/outputs", StaticFiles(directory="output"), name="outputs")
+
 @app.post("/upload")
 async def upload_files(files: List[UploadFile] = File(...), webhook_url: Optional[str] = None):
     """
@@ -28,6 +31,8 @@ async def upload_files(files: List[UploadFile] = File(...), webhook_url: Optiona
     os.makedirs(job_folder, exist_ok=True)
 
     image_paths = []
+
+    print(f"Webhook URL: {webhook_url}")
 
     for file in files:
         file_path = os.path.join(job_folder, file.filename)

@@ -62,7 +62,10 @@ def process_images_task(self, job_id, image_paths, webhook_url=None):
         except Exception as e:
             return {"error": str(e)}
         
+    print(f"Processed images: {processed_image_urls}")
+        
     if webhook_url:
+        print(f"Sending webhook to {webhook_url}")
         try:
             requests.post(webhook_url, json={"job_id": job_id, "status": "completed", "images": processed_image_urls})
             print(f"Webhook sent to {webhook_url}")
